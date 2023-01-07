@@ -12,6 +12,7 @@ DevOps engineers use ssh on a daily basis in order to connect to servers so, hav
 ### Benefits of using SSC
 
 - Simple to use
+- connect to a node by selecting through menu or direct with their name
 - Add new node in 5 sec
 - Able to use private key
 - Able to backup & restore
@@ -28,6 +29,10 @@ ln -s $PWD/ssc /usr/bin/
 ```
 
 # HOW TO
+
+This gift shows you 90% of the usage:
+
+![](https://github.com/hosein-yousefii/ssh-connection-manager/blob/main/ssc-help.gif)
 
 This is a simple help.
 
