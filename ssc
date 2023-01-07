@@ -5,9 +5,21 @@
 echo "############ Welcome to SSC ############"
 echo
 echo "For help: ssc help"
+echo
 
 INPUT=$1
 SSC_CONF=$HOME/.ssc.conf
+
+Config-check () {
+if [[ ! -f ${SSC_CONF} ]]
+then
+	echo "Configuration file is missed \"${SSC_CONF}\" or you didn't add a node yet."
+	echo "Please add your first node with -a."
+	echo
+	exit
+fi
+
+}
 
 Add-node () {
 
@@ -63,17 +75,22 @@ echo "# Your node has been added successfuly."
 
 List-node () {
 
+Config-check
+
 SSC_ALL_GROUPS=$(cat ${SSC_CONF} |grep -v ^#|grep -v ^$| sed 's/,/ /g'| sort -k 7 |awk '{print $NF}'|uniq -d)
 
 SSC_ALL_GROUPS="${SSC_ALL_GROUPS} $(cat ${SSC_CONF} |grep -v ^#|grep -v ^$| sed 's/,/ /g'| sort -k 7 |awk '{print $NF}'|uniq -u)"
 
+SSC_ALL_GROUPS="$(echo ${SSC_ALL_GROUPS} |tr " " "\n"| sort -d| xargs)"
 
+echo
+
+echo -e "\e[1;30m`printf "%-19s %-15s %-11s %-10s %-10s %-10s  %-13s\n\n" Name Host UserName Port Options SshKey` \e[0m"
 for GROUP_NAME in $SSC_ALL_GROUPS
 do
     echo
     printf "\e[0;31m%-5s\e[m \e[0;31m%-5s\e[m %-20s %-5s %-10s\n" "________________" ${GROUP_NAME}
     echo
-    echo -e "\e[1;30m`printf "%-19s %-15s %-11s %-10s %-10s %-10s  %-13s\n\n" Name Host UserName Port Options SshKey` \e[0m"
     for SEPERATE_GROUP in $(grep -w $GROUP_NAME ${SSC_CONF})
     do
 
@@ -84,7 +101,7 @@ do
         SSC_Options=$(echo $SEPERATE_GROUP |awk -F "," '{print $5}')
         SSC_Key=$(echo $SEPERATE_GROUP |awk -F "," '{print $6}')
 
-        printf "%-16s %-20s %-10s %-10s %-10s %-10s  %-13s\n" ${SSC_Name} ${SSC_Host} ${SSC_Username} ${SSC_Port} ${SSC_Options} ${SSC_Key}
+        printf "%-16s %-17s %-12s %-12s %-9s %-10s  %-13s\n" ${SSC_Name} ${SSC_Host} ${SSC_Username} ${SSC_Port} ${SSC_Options} ${SSC_Key}
     done
 done
 
@@ -92,7 +109,130 @@ echo
 
 }
 
+print_menu() {
+
+Config-check
+
+local SSC_function_arguments=($@)
+
+local SSC_selected_item="$1"
+local SSC_menu_items=(${SSC_function_arguments[@]:1})
+local SSC_menu_size="${#SSC_menu_items[@]}"
+
+echo -e "\e[1;30m`printf "%-19s %-15s %-11s %-10s %-10s %-13s %-13s\n\n" Name Host UserName Port Options SshKey Group` \e[0m"
+
+for (( i = 0; i < $SSC_menu_size; ++i ))
+do
+
+    if [ "$i" = "$SSC_selected_item" ]
+    then
+		echo
+
+		SSC_LINE=$(sed '1,6 d' ${SSC_CONF}| grep -w ${SSC_menu_items[i]})
+
+		SSC_Name=$(echo $SSC_LINE |awk -F "," '{print $1}')
+		SSC_Host=$(echo $SSC_LINE |awk -F "," '{print $2}')
+		SSC_Username=$(echo $SSC_LINE |awk -F "," '{print $3}')
+		SSC_Port=$(echo $SSC_LINE |awk -F "," '{print $4}')
+		SSC_Options=$(echo $SSC_LINE |awk -F "," '{print $5}')
+		SSC_Key=$(echo $SSC_LINE |awk -F "," '{print $6}')
+		SSC_Group=$(echo $SSC_LINE |awk -F "," '{print $7}')
+
+		echo -e "\e[1;45m$(printf "%-16s %-17s %-12s %-12s %-8s %-14s %-12s\n" ${SSC_Name} ${SSC_Host} ${SSC_Username} ${SSC_Port} ${SSC_Options} ${SSC_Key} ${SSC_Group})  \e[0m"
+    else
+        echo
+
+        SSC_LINE=$(sed '1,6 d' ${SSC_CONF}| grep -w ${SSC_menu_items[i]})
+
+        SSC_Name=$(echo $SSC_LINE |awk -F "," '{print $1}')
+        SSC_Host=$(echo $SSC_LINE |awk -F "," '{print $2}')
+        SSC_Username=$(echo $SSC_LINE |awk -F "," '{print $3}')
+        SSC_Port=$(echo $SSC_LINE |awk -F "," '{print $4}')
+        SSC_Options=$(echo $SSC_LINE |awk -F "," '{print $5}')
+        SSC_Key=$(echo $SSC_LINE |awk -F "," '{print $6}')
+        SSC_Group=$(echo $SSC_LINE |awk -F "," '{print $7}')
+
+        printf "%-16s %-20s %-10s %-10s %-10s %-10s  %-13s\n" ${SSC_Name} ${SSC_Host} ${SSC_Username} ${SSC_Port} ${SSC_Options} ${SSC_Key} ${SSC_Group}
+        fi
+done
+}
+
+run_menu()  {
+
+Config-check
+
+local SSC_function_arguments=($@)
+
+local SSC_selected_item="$1"
+local SSC_menu_items=(${SSC_function_arguments[@]:1})
+local SSC_menu_size="${#SSC_menu_items[@]}"
+local SSC_menu_limit=$((SSC_menu_size - 1))
+
+clear
+print_menu "$SSC_selected_item" "${SSC_menu_items[@]}"
+
+while read -rsn1 input
+do
+    case "$input"
+    in
+        $'\x1B')
+            read -rsn1 -t 0.1 input
+            if [ "$input" = "[" ]
+            then
+                read -rsn1 -t 0.1 input
+                case "$input"
+                in
+                    A)
+                        if [ "$SSC_selected_item" -ge 1 ]
+                        then
+                            SSC_selected_item=$((SSC_selected_item - 1))
+                            clear
+                            print_menu "$SSC_selected_item" "${SSC_menu_items[@]}"
+                        fi
+                        ;;
+                    B)
+                        if [ "$SSC_selected_item" -lt "$SSC_menu_limit" ]
+                        then
+                            SSC_selected_item=$((SSC_selected_item + 1))
+                            clear
+                            print_menu "$SSC_selected_item" "${SSC_menu_items[@]}"
+                        fi
+                        ;;
+                esac
+            fi
+            read -rsn5 -t 0.1
+            ;;
+        "")  
+            return "$SSC_selected_item"
+            ;;
+    esac
+done
+}
+
+select_menu() {
+
+Config-check
+
+SSC_selected_item=0
+SSC_menu_items=($(cat ${SSC_CONF} |grep -v ^#|grep -v ^$| sed 's/,/ /g'|awk '{print $1}'))
+
+run_menu "$SSC_selected_item" "${SSC_menu_items[@]}"
+SSC_menu_result="$?"
+
+echo
+
+case "$SSC_menu_result"
+in
+        *)
+                SSC_SELECTED_LINE=$(expr ${SSC_menu_result} + 7)
+                Connect-node $(sed "${SSC_SELECTED_LINE}q;d" $SSC_CONF|awk -F "," '{print $1}')
+                ;;
+esac
+}
+
 Delete-node () {
+
+Config-check
 
 read -p "Give the name of the node that you want to delete: " "SSC_Node_Name"
 
@@ -110,6 +250,8 @@ fi
 }
 
 Copy-key () {
+
+Config-check
 
 List-node
 
@@ -144,6 +286,8 @@ fi
 
 Backup () {
 
+Config-check
+
 read -p "Do you want to take a backup?(y/n) " "SSC_BACKUP"
 
 if [[ ${SSC_BACKUP} == y ]]
@@ -166,9 +310,9 @@ fi
 
 Connect-node () {
 
-List-node
+Config-check
 
-read -p "Which node do you like to connect? " "SSC_Node_Name"
+SSC_Node_Name=$1
 
 SSC_LINE_NUMBER=$(grep -n ^${SSC_Node_Name}, ${SSC_CONF} |awk -F ":" '{print $1}')
 
@@ -194,6 +338,7 @@ then
         fi
 
         echo
+		echo "Connecting to ${SSC_Node_Name}..."
         ssh -p ${SSC_Port} -i ${SSC_Key}  ${SSC_Username}@${SSC_Host} ${SSC_Options}
 else
         echo
@@ -222,16 +367,16 @@ OPTIONS:
 
 -r                      Restore backup
 
--h, help        This page
+-h, help        		This page
 
--c                      Connect to a node from the list
+-c <NODE_NAME>          Connect to the NODE
 
 
 SAMPLE:
 
-ssm -a          TO add a new node
+ssm -a          			TO add a new node
 
-ssm -c          Select from list to connect
+ssm -c azure-server			connect to "azure-server"         
 
 """
 }
@@ -251,7 +396,7 @@ case $INPUT in
         -d)
             Delete-node
         ;;
-        
+
         -k)
             Copy-key
         ;;
@@ -265,11 +410,15 @@ case $INPUT in
         ;;
 
         -c)
-            Connect-node
+            Connect-node $2
         ;;
 
-        *|-h|help)
-             helps
+        -h|help)
+            helps
         ;;
+		*)
+			select_menu
+		;;
 
 esac
+
