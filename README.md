@@ -58,7 +58,7 @@ ssc -l
 
 # Upgrade
 
-![](https://github.com/hosein-yousefii/ssh-connection-manager/blob/main/ssc-upgrade.png)
+![](https://github.com/hosein-yousefii/ssh-connection-manager/blob/main/ssc-upgrade.gif)
 # CONTRIBUTE
 
 Do you want to contribute so, don't waste your time and send me an email: Yousefi.hosein.o@gmail.com
