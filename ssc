@@ -21,6 +21,12 @@ fi
 
 }
 
+# Sort config file
+split -l 6 -d ${SSC_CONF}
+sort -t , -k 7 x01 >> x00
+cat x00 > ${SSC_CONF}
+rm -rf x00 x01
+
 Add-node () {
 
 echo "# Please answer next questions: "
@@ -77,15 +83,15 @@ List-node () {
 
 Config-check
 
-SSC_ALL_GROUPS=$(cat ${SSC_CONF} |grep -v ^#|grep -v ^$| sed 's/,/ /g'| sort -k 7 |awk '{print $NF}'|uniq -d)
+SSC_ALL_GROUPS=$(cat ${SSC_CONF} |grep -v "^#"|grep -v ^$| sed 's/,/ /g'| sort -k 7 |awk '{print $NF}'|uniq -d)
 
-SSC_ALL_GROUPS="${SSC_ALL_GROUPS} $(cat ${SSC_CONF} |grep -v ^#|grep -v ^$| sed 's/,/ /g'| sort -k 7 |awk '{print $NF}'|uniq -u)"
+SSC_ALL_GROUPS="${SSC_ALL_GROUPS} $(cat ${SSC_CONF} |grep -v "^#"|grep -v ^$| sed 's/,/ /g'| sort -k 7 |awk '{print $NF}'|uniq -u)"
 
 SSC_ALL_GROUPS="$(echo ${SSC_ALL_GROUPS} |tr " " "\n"| sort -d| xargs)"
 
 echo
 
-echo -e "\e[1;30m`printf "%-19s %-15s %-11s %-10s %-10s %-10s  %-13s\n\n" Name Host UserName Port Options SshKey` \e[0m"
+echo -e "\e[1;30m`printf "%-19s %-25s %-16s %-10s %-10s %-10s  %-13s\n\n" Name Host UserName Port Options SshKey` \e[0m"
 for GROUP_NAME in $SSC_ALL_GROUPS
 do
     echo
@@ -99,9 +105,17 @@ do
         SSC_Username=$(echo $SEPERATE_GROUP |awk -F "," '{print $3}')
         SSC_Port=$(echo $SEPERATE_GROUP |awk -F "," '{print $4}')
         SSC_Options=$(echo $SEPERATE_GROUP |awk -F "," '{print $5}')
+	if [[ $SSC_Options != null ]]
+	then
+		SSC_Options=True
+	fi
         SSC_Key=$(echo $SEPERATE_GROUP |awk -F "," '{print $6}')
+	if [[ $SSC_Key != null ]]
+        then
+                SSC_Key=True
+        fi
 
-        printf "%-16s %-17s %-12s %-12s %-9s %-10s  %-13s\n" ${SSC_Name} ${SSC_Host} ${SSC_Username} ${SSC_Port} ${SSC_Options} ${SSC_Key}
+        printf "%-16s %-30s %-15s %-10s %-10s %-10s  %-13s\n" ${SSC_Name} ${SSC_Host} ${SSC_Username} ${SSC_Port} ${SSC_Options} ${SSC_Key}
     done
 done
 
@@ -119,7 +133,7 @@ local SSC_selected_item="$1"
 local SSC_menu_items=(${SSC_function_arguments[@]:1})
 local SSC_menu_size="${#SSC_menu_items[@]}"
 
-echo -e "\e[1;30m`printf "%-19s %-15s %-11s %-10s %-10s %-13s %-13s\n\n" Name Host UserName Port Options SshKey Group` \e[0m"
+echo -e "\e[1;30m`printf "%-19s %-25s %-16s %-10s %-10s %-13s %-13s\n\n" Name Host UserName Port Options SshKey Group` \e[0m"
 
 for (( i = 0; i < $SSC_menu_size; ++i ))
 do
@@ -128,31 +142,47 @@ do
     then
 		echo
 
-		SSC_LINE=$(sed '1,6 d' ${SSC_CONF}| grep -w ${SSC_menu_items[i]})
+		SSC_LINE=$(sed '1,6 d' $SSC_CONF| sort -k 7| grep -w ${SSC_menu_items[i]})
 
 		SSC_Name=$(echo $SSC_LINE |awk -F "," '{print $1}')
 		SSC_Host=$(echo $SSC_LINE |awk -F "," '{print $2}')
 		SSC_Username=$(echo $SSC_LINE |awk -F "," '{print $3}')
 		SSC_Port=$(echo $SSC_LINE |awk -F "," '{print $4}')
-		SSC_Options=$(echo $SSC_LINE |awk -F "," '{print $5}')
-		SSC_Key=$(echo $SSC_LINE |awk -F "," '{print $6}')
+	        SSC_Options=$(echo $SSC_LINE |awk -F "," '{print $5}')
+        	if [[ $SSC_Options != null ]]
+	        then
+        	        SSC_Options=True
+	        fi
+	        SSC_Key=$(echo $SSC_LINE |awk -F "," '{print $6}')
+	        if [[ $SSC_Key != null ]]
+	        then
+	                SSC_Key=True
+	        fi		
 		SSC_Group=$(echo $SSC_LINE |awk -F "," '{print $7}')
 
-		echo -e "\e[1;45m$(printf "%-16s %-17s %-12s %-12s %-8s %-14s %-12s\n" ${SSC_Name} ${SSC_Host} ${SSC_Username} ${SSC_Port} ${SSC_Options} ${SSC_Key} ${SSC_Group})  \e[0m"
+		echo -e "\e[1;45m$(printf "%-16s %-30s %-15s %-10s %-10s %-10s  %-13s\n" ${SSC_Name} ${SSC_Host} ${SSC_Username} ${SSC_Port} ${SSC_Options} ${SSC_Key} ${SSC_Group})  \e[0m"
     else
         echo
 
-        SSC_LINE=$(sed '1,6 d' ${SSC_CONF}| grep -w ${SSC_menu_items[i]})
+        SSC_LINE=$(sed '1,6 d' $SSC_CONF| sort -k 7| grep -w ${SSC_menu_items[i]})
 
         SSC_Name=$(echo $SSC_LINE |awk -F "," '{print $1}')
         SSC_Host=$(echo $SSC_LINE |awk -F "," '{print $2}')
         SSC_Username=$(echo $SSC_LINE |awk -F "," '{print $3}')
         SSC_Port=$(echo $SSC_LINE |awk -F "," '{print $4}')
         SSC_Options=$(echo $SSC_LINE |awk -F "," '{print $5}')
+        if [[ $SSC_Options != null ]]
+        then
+                SSC_Options=True
+        fi
         SSC_Key=$(echo $SSC_LINE |awk -F "," '{print $6}')
+        if [[ $SSC_Key != null ]]
+        then
+                SSC_Key=True
+        fi	
         SSC_Group=$(echo $SSC_LINE |awk -F "," '{print $7}')
 
-        printf "%-16s %-20s %-10s %-10s %-10s %-10s  %-13s\n" ${SSC_Name} ${SSC_Host} ${SSC_Username} ${SSC_Port} ${SSC_Options} ${SSC_Key} ${SSC_Group}
+        printf "%-16s %-30s %-15s %-10s %-10s %-10s  %-13s\n" ${SSC_Name} ${SSC_Host} ${SSC_Username} ${SSC_Port} ${SSC_Options} ${SSC_Key} ${SSC_Group}
         fi
 done
 }
@@ -214,7 +244,7 @@ select_menu() {
 Config-check
 
 SSC_selected_item=0
-SSC_menu_items=($(cat ${SSC_CONF} |grep -v ^#|grep -v ^$| sed 's/,/ /g'|awk '{print $1}'))
+SSC_menu_items=($(cat $SSC_CONF |grep -v "^#"|grep -v ^$| sed 's/,/ /g'|awk '{print $1}'))
 
 run_menu "$SSC_selected_item" "${SSC_menu_items[@]}"
 SSC_menu_result="$?"
@@ -335,11 +365,13 @@ then
         if [[ ${SSC_Options} == null ]]
         then
                 SSC_Options=
+	else
+		SSC_OPTION_COMMAND=-o
         fi
 
         echo
 		echo "Connecting to ${SSC_Node_Name}..."
-        ssh -p ${SSC_Port} -i ${SSC_Key}  ${SSC_Username}@${SSC_Host} ${SSC_Options}
+		ssh -p ${SSC_Port} -i ${SSC_Key}  ${SSC_Username}@${SSC_Host} ${SSC_OPTION_COMMAND} ${SSC_Options}
 else
         echo
         echo "# Your node "${SSC_Node_Name}" doesn't exist."
@@ -417,8 +449,12 @@ case $INPUT in
             helps
         ;;
 		*)
-			select_menu
+			if [[ $(cat ${SSC_CONF} |awk -F "," '{print $1}'|grep $INPUT) ]]
+			then
+				Connect-node $INPUT
+			else
+				select_menu
+			fi
 		;;
 
 esac
-
