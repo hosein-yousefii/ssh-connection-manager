@@ -22,10 +22,13 @@ fi
 }
 
 # Sort config file
-split -l 6 -d ${SSC_CONF}
-sort -t , -k 7 x01 >> x00
-cat x00 > ${SSC_CONF}
-rm -rf x00 x01
+if [[ -f ${SSC_CONF} ]]
+then
+	split -l 6 -d ${SSC_CONF}
+	sort -t , -k 7 x01 >> x00
+	cat x00 > ${SSC_CONF}
+	rm -rf x00 x01
+fi
 
 Add-node () {
 
@@ -333,7 +336,7 @@ read -p "Do you want to restore your backup?(y/n) " "SSC_RESTORE"
 if [[ ${SSC_RESTORE} == y ]]
 then
         read -p "Please write the absolute path to your backup(.gz): " "SSC_RESTORE_PATH"
-        gzip -d ${SSC_RESTORE_PATH} -c ${SSC_CONF} && echo "Backup is restored successfuly."
+        gzip -d ${SSC_RESTORE_PATH} -c > ${SSC_CONF} && echo "Backup is restored successfuly."
 fi
 
 }
