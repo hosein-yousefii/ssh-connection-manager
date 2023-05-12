@@ -56,6 +56,9 @@ For the list of servers:
 ssc -l
 ```
 
+# Upgrade
+
+![](https://github.com/hosein-yousefii/ssh-connection-manager/blob/main/ssc-upgrade.png)
 # CONTRIBUTE
 
 Do you want to contribute so, don't waste your time and send me an email: Yousefi.hosein.o@gmail.com
