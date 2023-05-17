@@ -94,7 +94,8 @@ SSC_ALL_GROUPS="$(echo ${SSC_ALL_GROUPS} |tr " " "\n"| sort -d| xargs)"
 
 echo
 
-echo -e "\e[1;30m`printf "%-19s %-25s %-16s %-10s %-10s %-10s  %-13s\n\n" Name Host UserName Port Options SshKey` \e[0m"
+printf "%-19s %-25s %-16s %-10s %-10s %-10s %-13s\n\n" Name Host UserName Port Options SshKey
+
 for GROUP_NAME in $SSC_ALL_GROUPS
 do
     echo
@@ -136,7 +137,7 @@ local SSC_selected_item="$1"
 local SSC_menu_items=(${SSC_function_arguments[@]:1})
 local SSC_menu_size="${#SSC_menu_items[@]}"
 
-echo -e "\e[1;30m`printf "%-19s %-25s %-16s %-10s %-10s %-13s %-13s\n\n" Name Host UserName Port Options SshKey Group` \e[0m"
+printf "%-19s %-25s %-16s %-10s %-10s %-13s %-13s\n\n" Name Host UserName Port Options SshKey Group
 
 for (( i = 0; i < $SSC_menu_size; ++i ))
 do
@@ -163,7 +164,7 @@ do
 	        fi		
 		SSC_Group=$(echo $SSC_LINE |awk -F "," '{print $7}')
 
-		echo -e "\e[1;45m$(printf "%-16s %-30s %-15s %-10s %-10s %-10s  %-13s\n" ${SSC_Name} ${SSC_Host} ${SSC_Username} ${SSC_Port} ${SSC_Options} ${SSC_Key} ${SSC_Group})  \e[0m"
+		echo -e "\e[1;45m $(printf "%-16s %-30s %-15s %-10s %-10s %-10s  %-13s\n" ${SSC_Name} ${SSC_Host} ${SSC_Username} ${SSC_Port} ${SSC_Options} ${SSC_Key} ${SSC_Group})  \e[0m"
     else
         echo
 
@@ -402,16 +403,16 @@ OPTIONS:
 
 -r                      Restore backup
 
--h, help        		This page
+-h, help       		This page
 
 -c <NODE_NAME>          Connect to the NODE
 
-
+_________________________________________________________________
 SAMPLE:
 
-ssm -a          			TO add a new node
+ssm -a         			TO add a new node
 
-ssm -c azure-server			connect to "azure-server"         
+ssm -c azure-server		connect to "azure-server"         
 
 """
 }
