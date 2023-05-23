@@ -24,10 +24,9 @@ fi
 # Sort config file
 if [[ -f ${SSC_CONF} ]]
 then
-	split -l 6 -d ${SSC_CONF}
-	sort -t , -k 7 x01 >> x00
-	cat x00 > ${SSC_CONF}
-	rm -rf x00 x01
+	sed -n '1,6'p ${SSC_CONF} > x01
+	sed -n '7,$'p ${SSC_CONF}|sort -t , -k 7 >> x01
+	mv x01 ${SSC_CONF}
 fi
 
 Add-node () {
@@ -144,9 +143,9 @@ do
 
     if [ "$i" = "$SSC_selected_item" ]
     then
-		echo
+		echo 
 
-		SSC_LINE=$(sed '1,6 d' $SSC_CONF| sort -k 7| grep -w ${SSC_menu_items[i]})
+		SSC_LINE=$(sed '1,6 d' $SSC_CONF| grep "^${SSC_menu_items[i]},")
 
 		SSC_Name=$(echo $SSC_LINE |awk -F "," '{print $1}')
 		SSC_Host=$(echo $SSC_LINE |awk -F "," '{print $2}')
@@ -168,7 +167,7 @@ do
     else
         echo
 
-        SSC_LINE=$(sed '1,6 d' $SSC_CONF| sort -k 7| grep -w ${SSC_menu_items[i]})
+        SSC_LINE=$(sed '1,6 d' $SSC_CONF| grep "^${SSC_menu_items[i]},")
 
         SSC_Name=$(echo $SSC_LINE |awk -F "," '{print $1}')
         SSC_Host=$(echo $SSC_LINE |awk -F "," '{print $2}')
