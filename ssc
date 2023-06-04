@@ -46,7 +46,7 @@ read -p "Private key(default is null): " "SSC_Key"
 read -p "Which group does it belong to(default is General): " "SSC_Group"
 read -p "connection name(UNIQUE): " "SSC_Name"
 
-while [[ ${#SSC_Name} == 0 ]] || [[ $(awk -F "," '{print $1}' ${SSC_CONF} |grep -w ${SSC_Name}) ]]
+while [[ ${#SSC_Name} == 0 ]] || [[ $(awk -F "," '{print $1}' ${SSC_CONF} |grep -w "${SSC_Name}$") ]]
 do
         read -p "## This name is already taken, choose another one: " "SSC_Name"
 done &>/dev/null
@@ -100,7 +100,7 @@ do
     echo
     printf "\e[0;31m%-5s\e[m \e[0;31m%-5s\e[m %-20s %-5s %-10s\n" "________________" ${GROUP_NAME}
     echo
-    for SEPERATE_GROUP in $(grep -w $GROUP_NAME ${SSC_CONF})
+    for SEPERATE_GROUP in $(grep -w "$GROUP_NAME$" ${SSC_CONF})
     do
 
         SSC_Name=$(echo $SEPERATE_GROUP |awk -F "," '{print $1}')
