@@ -12,12 +12,15 @@ DevOps engineers use ssh on a daily basis in order to connect to servers so, hav
 ### Benefits of using SSC
 
 - Simple to use
-- connect to a node by selecting through menu or direct with their name
+- Copy to/from node
 - Add new node in 5 sec
 - Able to use private key
 - Able to backup & restore
 - Multi group connections
 
+# How it works in a minute
+
+![](https://github.com/hosein-yousefii/ssh-connection-manager/blob/main/ssh-connection-manager.gif)
 
 # USAGE
 
@@ -29,10 +32,6 @@ ln -s $PWD/ssc /usr/bin/
 ```
 
 # HOW TO
-
-This gift shows you 90% of the usage:
-
-![](https://github.com/hosein-yousefii/ssh-connection-manager/blob/main/ssc-help.gif)
 
 This is a simple help.
 
@@ -53,12 +52,34 @@ ssc -a
 For the list of servers:
 
 ```
-ssc -l
+# To see the list first then connect.
+
+ssc
+
+# Directly connect without list
+
+ssc sample
 ```
 
-# Upgrade
+To copy from/to nodes:
+ATTENTION: Nodes should exist on the list.
 
-![](https://github.com/hosein-yousefii/ssh-connection-manager/blob/main/ssc-upgrade.gif)
+```
+# You have 2 options
+
+# ssc -c Host PathOnHost PathOnLocal
+
+# ssc -c PathOnLocal Host PathOnHost
+
+
+# Example:
+
+ssc -c /opt/file.txt sample /tmp       # Copy /opt/file.txt to sample node on the /tmp path.
+
+ssc -c sample /etc/sample /tmp         # Copy sample directory from sample node to local /tmp path.
+```
+
+
 # CONTRIBUTE
 
 Do you want to contribute so, don't waste your time and send me an email: Yousefi.hosein.o@gmail.com
